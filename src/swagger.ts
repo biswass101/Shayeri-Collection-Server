@@ -28,6 +28,96 @@ const options = {
         },
       },
       schemas: {
+        VideoTextSection: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            position: { type: 'integer' },
+            heading: { type: 'string', nullable: true },
+            body: { type: 'string' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        Video: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            title: { type: 'string' },
+            description: { type: 'string', nullable: true },
+            categoryId: { type: 'integer' },
+            category: { $ref: '#/components/schemas/Category' },
+            cloudinaryPublicId: { type: 'string' },
+            videoUrl: { type: 'string' },
+            thumbnailUrl: { type: 'string', nullable: true },
+            durationSeconds: { type: 'integer', nullable: true },
+            isPublished: { type: 'boolean' },
+            viewsCount: { type: 'integer' },
+            createdByAdminId: { type: 'integer' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+            textSections: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/VideoTextSection' },
+            },
+          },
+        },
+        VideoCreateRequest: {
+          type: 'object',
+          required: ['title', 'categoryId', 'video'],
+          properties: {
+            title: { type: 'string', example: 'Best Shayari' },
+            description: { type: 'string' },
+            categoryId: { type: 'integer', example: 1 },
+            isPublished: { type: 'boolean', example: true },
+            textSections: {
+              type: 'string',
+              description: 'JSON array of text sections',
+              example: '[{\"position\":1,\"heading\":\"Intro\",\"body\":\"...\"}]',
+            },
+            video: { type: 'string', format: 'binary' },
+            thumbnail: { type: 'string', format: 'binary' },
+          },
+        },
+        VideoUpdateRequest: {
+          type: 'object',
+          properties: {
+            title: { type: 'string' },
+            description: { type: 'string' },
+            categoryId: { type: 'integer' },
+            isPublished: { type: 'boolean' },
+            textSections: {
+              type: 'string',
+              description: 'JSON array of text sections',
+            },
+            video: { type: 'string', format: 'binary' },
+            thumbnail: { type: 'string', format: 'binary' },
+          },
+        },
+        VideoResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: { $ref: '#/components/schemas/Video' },
+          },
+        },
+        VideosListResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/Video' },
+            },
+            meta: {
+              type: 'object',
+              properties: {
+                total: { type: 'integer' },
+                page: { type: 'integer' },
+                limit: { type: 'integer' },
+              },
+            },
+          },
+        },
         Category: {
           type: 'object',
           properties: {

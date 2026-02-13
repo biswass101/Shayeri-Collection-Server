@@ -10,11 +10,15 @@ import { UserController } from "./controllers/userController";
 import { CategoryRepository } from "./repositories/categoryRepository";
 import { CategoryService } from "./services/categoryService";
 import { CategoryController } from "./controllers/categoryController";
+import { VideoRepository } from "./repositories/videoRepository";
+import { VideoService } from "./services/videoService";
+import { VideoController } from "./controllers/videoController";
 import { AuthService } from "./services/authService";
 import { AuthController } from "./controllers/authController";
 import { userRoutes } from "./routes/userRoutes";
 import { authRoutes } from "./routes/authRoutes";
 import { categoryRoutes } from "./routes/categoryRoutes";
+import { videoRoutes } from "./routes/videoRoutes";
 
 dotenv.config();
 
@@ -29,6 +33,9 @@ const userController = new UserController(userService);
 const categoryRepository = new CategoryRepository(prisma);
 const categoryService = new CategoryService(categoryRepository);
 const categoryController = new CategoryController(categoryService);
+const videoRepository = new VideoRepository(prisma);
+const videoService = new VideoService(prisma, videoRepository);
+const videoController = new VideoController(videoService);
 const authService = new AuthService(prisma);
 const authController = new AuthController(authService);
 
@@ -63,6 +70,9 @@ userRoutes(app, userController, authService);
 
 // Category routes (public + admin)
 categoryRoutes(app, categoryController, authService);
+
+// Video routes (public + admin)
+videoRoutes(app, videoController, authService);
 
 // Start server
 app.listen(PORT, () => {
