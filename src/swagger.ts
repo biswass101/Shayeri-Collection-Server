@@ -38,6 +38,30 @@ const options = {
             createdAt: { type: 'string', format: 'date-time' },
           },
         },
+        VideoTextSectionCreateRequest: {
+          type: 'object',
+          required: ['body'],
+          properties: {
+            position: { type: 'integer', example: 1 },
+            heading: { type: 'string', example: 'Intro' },
+            body: { type: 'string', example: 'Some shayari text...' },
+          },
+        },
+        VideoTextSectionUpdateRequest: {
+          type: 'object',
+          properties: {
+            position: { type: 'integer', example: 2 },
+            heading: { type: 'string', example: 'Updated heading' },
+            body: { type: 'string', example: 'Updated text...' },
+          },
+        },
+        VideoTextSectionResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: { $ref: '#/components/schemas/VideoTextSection' },
+          },
+        },
         Video: {
           type: 'object',
           properties: {
@@ -115,6 +139,141 @@ const options = {
                 page: { type: 'integer' },
                 limit: { type: 'integer' },
               },
+            },
+          },
+        },
+        VideoLike: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            videoId: { type: 'integer' },
+            userId: { type: 'integer' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        VideoLikeResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: { $ref: '#/components/schemas/VideoLike' },
+          },
+        },
+        Comment: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            videoId: { type: 'integer' },
+            userId: { type: 'integer' },
+            body: { type: 'string' },
+            isDeleted: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+            user: { $ref: '#/components/schemas/User' },
+          },
+        },
+        CommentCreateRequest: {
+          type: 'object',
+          required: ['body'],
+          properties: {
+            body: { type: 'string', example: 'Great video!' },
+          },
+        },
+        CommentUpdateRequest: {
+          type: 'object',
+          required: ['body'],
+          properties: {
+            body: { type: 'string', example: 'Updated comment text' },
+          },
+        },
+        CommentResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: { $ref: '#/components/schemas/Comment' },
+          },
+        },
+        CommentsListResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/Comment' },
+            },
+          },
+        },
+        VideoShareEvent: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            videoId: { type: 'integer' },
+            userId: { type: 'integer' },
+            channel: { type: 'string', nullable: true },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        VideoShareRequest: {
+          type: 'object',
+          properties: {
+            channel: { type: 'string', example: 'whatsapp' },
+          },
+        },
+        VideoShareResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: { $ref: '#/components/schemas/VideoShareEvent' },
+          },
+        },
+        VideoDownloadEvent: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            videoId: { type: 'integer' },
+            userId: { type: 'integer' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        VideoDownloadResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'object',
+              properties: {
+                downloadUrl: { type: 'string' },
+                event: { $ref: '#/components/schemas/VideoDownloadEvent' },
+              },
+            },
+          },
+        },
+        Notification: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            userId: { type: 'integer' },
+            videoId: { type: 'integer', nullable: true },
+            type: { type: 'string' },
+            title: { type: 'string' },
+            body: { type: 'string', nullable: true },
+            isRead: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        NotificationResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: { $ref: '#/components/schemas/Notification' },
+          },
+        },
+        NotificationsListResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/Notification' },
             },
           },
         },
