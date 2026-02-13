@@ -11,14 +11,14 @@ export class UserController {
   // Create a new user
   async createUser(req: Request, res: Response): Promise<void> {
     try {
-      const { email, name } = req.body;
+      const { email, name, password } = req.body;
 
-      if (!email || !name) {
-        res.status(400).json({ error: "Email and name are required" });
+      if (!email || !name || !password) {
+        res.status(400).json({ error: "Email, Password and name are required" });
         return;
       }
 
-      const user = await this.userService.createUser(email, name);
+      const user = await this.userService.createUser(email, name, password);
       res.status(201).json({ success: true, data: user });
     } catch (error: any) {
       res.status(400).json({ error: error.message });

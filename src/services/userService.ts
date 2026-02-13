@@ -9,7 +9,7 @@ export class UserService {
   }
 
   // Create a new user
-  async createUser(email: string, name: string): Promise<User> {
+  async createUser(email: string, name: string, password: string): Promise<User> {
     // Validate email format
     if (!this.isValidEmail(email)) {
       throw new Error("Invalid email format");
@@ -21,7 +21,7 @@ export class UserService {
       throw new Error("User with this email already exists");
     }
 
-    return await this.userRepository.create(email, name);
+    return await this.userRepository.create(email, name, password);
   }
 
   // Get user by ID

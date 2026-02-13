@@ -12,7 +12,56 @@ export function userRoutes(
   // Apply auth middleware to all user routes
   const authenticate = authMiddleware(authService);
 
-  // Create a new user (Admin only)
+  /**
+   * @swagger
+   * /api/users:
+   *   post:
+   *     summary: Create a new user
+   *     description: Create a new user (Admin only)
+   *     tags:
+   *       - Users
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: ['email', 'name']
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 example: user@example.com
+   *               name:
+   *                 type: string
+   *                 example: John Doe
+   *     responses:
+   *       201:
+   *         description: User created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/UserResponse'
+   *       400:
+   *         description: Invalid input
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       401:
+   *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       403:
+   *         description: Forbidden - Admin access required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   */
   app.post(
     "/api/users",
     authenticate,
@@ -20,7 +69,42 @@ export function userRoutes(
     (req: Request, res: Response) => userController.createUser(req, res)
   );
 
-  // Get all users (Admin only)
+  /**
+   * @swagger
+   * /api/users:
+   *   get:
+   *     summary: Get all users
+   *     description: Retrieve list of all users (Admin only)
+   *     tags:
+   *       - Users
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: List of users retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/UsersListResponse'
+   *       401:
+   *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       403:
+   *         description: Forbidden - Admin access required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   */
   app.get(
     "/api/users",
     authenticate,
@@ -28,17 +112,163 @@ export function userRoutes(
     (req: Request, res: Response) => userController.getAllUsers(req, res)
   );
 
-  // Get user by ID (Admin or own user)
+  /**
+   * @swagger
+   * /api/users/{id}:
+   *   get:
+   *     summary: Get user by ID
+   *     description: Retrieve user details by ID (Admin or own user)
+   *     tags:
+   *       - Users
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *         description: User ID
+   *     responses:
+   *       200:
+   *         description: User retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/UserResponse'
+   *       401:
+   *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       404:
+   *         description: User not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   */
   app.get("/api/users/:id", authenticate, (req: Request, res: Response) =>
     userController.getUserById(req, res)
   );
 
-  // Update user (Admin or own user)
+  /**
+   * @swagger
+   * /api/users/{id}:
+   *   put:
+   *     summary: Update user
+   *     description: Update user information (Admin or own user)
+   *     tags:
+   *       - Users
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *         description: User ID
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 example: newemail@example.com
+   *               name:
+   *                 type: string
+   *                 example: Jane Doe
+   *     responses:
+   *       200:
+   *         description: User updated successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/UserResponse'
+   *       400:
+   *         description: Invalid input
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       401:
+   *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   */
   app.put("/api/users/:id", authenticate, (req: Request, res: Response) =>
     userController.updateUser(req, res)
   );
 
-  // Delete user (Admin only)
+  /**
+   * @swagger
+   * /api/users/{id}:
+   *   delete:
+   *     summary: Delete user
+   *     description: Delete a user by ID (Admin only)
+   *     tags:
+   *       - Users
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *         description: User ID
+   *     responses:
+   *       200:
+   *         description: User deleted successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 message:
+   *                   type: string
+   *                 data:
+   *                   $ref: '#/components/schemas/User'
+   *       400:
+   *         description: Invalid request
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       401:
+   *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       403:
+   *         description: Forbidden - Admin access required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   */
   app.delete(
     "/api/users/:id",
     authenticate,

@@ -1,7 +1,9 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
+import { swaggerSpec } from "./swagger";
 import { UserRepository } from "./repositories/userRepository";
 import { UserService } from "./services/userService";
 import { UserController } from "./controllers/userController";
@@ -27,6 +29,20 @@ const authController = new AuthController(authService);
 app.use(cors());
 app.use(express.json());
 
+// Swagger UI
+app.use("/api-docs", swaggerUi.serve);
+app.get("/api-docs", swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    url: "/api-docs/swagger.json",
+  },
+}));
+
+// Swagger JSON endpoint
+app.get("/api-docs/swagger.json", (req: Request, res: Response) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpec);
+});
+
 // Health check endpoint
 app.get("/health", (req: Request, res: Response) => {
   res.json({ status: "Server is running" });
@@ -41,6 +57,7 @@ userRoutes(app, userController, authService);
 // Start server
 app.listen(PORT, () => {
   console.log(`✅ Server is running on http://localhost:${PORT}`);
+  console.log(`📚 Swagger UI available at http://localhost:${PORT}/api-docs`);
   console.log(`📊 Database connected via Prisma`);
   console.log(`🔐 Authentication system initialized`);
 });
