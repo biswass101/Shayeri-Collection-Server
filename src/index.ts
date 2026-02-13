@@ -7,10 +7,14 @@ import { swaggerSpec } from "./swagger";
 import { UserRepository } from "./repositories/userRepository";
 import { UserService } from "./services/userService";
 import { UserController } from "./controllers/userController";
+import { CategoryRepository } from "./repositories/categoryRepository";
+import { CategoryService } from "./services/categoryService";
+import { CategoryController } from "./controllers/categoryController";
 import { AuthService } from "./services/authService";
 import { AuthController } from "./controllers/authController";
 import { userRoutes } from "./routes/userRoutes";
 import { authRoutes } from "./routes/authRoutes";
+import { categoryRoutes } from "./routes/categoryRoutes";
 
 dotenv.config();
 
@@ -22,6 +26,9 @@ const PORT = process.env.PORT || 3000;
 const userRepository = new UserRepository(prisma);
 const userService = new UserService(userRepository);
 const userController = new UserController(userService);
+const categoryRepository = new CategoryRepository(prisma);
+const categoryService = new CategoryService(categoryRepository);
+const categoryController = new CategoryController(categoryService);
 const authService = new AuthService(prisma);
 const authController = new AuthController(authService);
 
@@ -53,6 +60,9 @@ authRoutes(app, authController);
 
 // User routes (protected)
 userRoutes(app, userController, authService);
+
+// Category routes (public + admin)
+categoryRoutes(app, categoryController, authService);
 
 // Start server
 app.listen(PORT, () => {

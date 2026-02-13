@@ -8,12 +8,12 @@ export class UserRepository {
   }
 
   // Create a new user
-  async create(email: string, name: string, password: string): Promise<User> {
+  async create(email: string, name: string, passwordHash: string): Promise<User> {
     return await this.prisma.user.create({
       data: {
         email,
         name,
-        password
+        passwordHash
       },
     });
   }
@@ -27,11 +27,7 @@ export class UserRepository {
 
   // Get all users
   async findAll(): Promise<User[]> {
-    return await this.prisma.user.findMany({
-      include: {
-        posts: true,
-      },
-    });
+    return await this.prisma.user.findMany();
   }
 
   // Get user by email

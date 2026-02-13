@@ -1,15 +1,21 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+# Database Design (Prisma Proposal)
 
-generator client {
-  provider = "prisma-client-js"
-}
+## 1. Overview
+Your current schema has `User` and `Post` models. For this product, replace `Post` with video-centric models.
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+## 2. Core Entities
+- `User`: platform user with role.
+- `Category`: Shayeri category managed by admin.
+- `Video`: uploaded video metadata + Cloudinary IDs/URLs.
+- `VideoTextSection`: ordered text blocks for each video.
+- `VideoLike`: user-to-video like relation (unique by user+video).
+- `Comment`: threaded comment body (single-level for MVP).
+- `VideoShareEvent`: tracks share action.
+- `VideoDownloadEvent`: tracks authenticated downloads.
+- `Notification`: user notifications for video create/edit events.
 
+## 3. Prisma Model Draft
+```prisma
 enum UserRole {
   user
   admin
@@ -19,7 +25,7 @@ model User {
   id             Int                 @id @default(autoincrement())
   email          String              @unique
   name           String?
-  passwordHash   String              @default("")
+  passwordHash   String
   role           UserRole            @default(user)
   likes          VideoLike[]
   comments       Comment[]
@@ -27,7 +33,7 @@ model User {
   downloads      VideoDownloadEvent[]
   notifications  Notification[]
   createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @default(now()) @updatedAt
+  updatedAt      DateTime            @updatedAt
 }
 
 model Category {
@@ -133,3 +139,8 @@ model Notification {
 
   @@index([userId, createdAt])
 }
+```
+
+## 4. Notes
+- If you do not need analytics initially, `VideoShareEvent` and `VideoDownloadEvent` can be added later.
+- Keep `viewsCount` eventually consistent (async increment accepted for MVP).

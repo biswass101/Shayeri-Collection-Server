@@ -28,6 +28,98 @@ const options = {
         },
       },
       schemas: {
+        Category: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              description: 'Category ID',
+            },
+            name: {
+              type: 'string',
+              description: 'Category name',
+            },
+            slug: {
+              type: 'string',
+              description: 'Category slug',
+            },
+            description: {
+              type: 'string',
+              nullable: true,
+              description: 'Category description',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Category creation timestamp',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Category update timestamp',
+            },
+          },
+        },
+        CategoryCreateRequest: {
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: {
+              type: 'string',
+              example: 'Romantic',
+            },
+            slug: {
+              type: 'string',
+              example: 'romantic',
+            },
+            description: {
+              type: 'string',
+              example: 'Shayari for romantic moments',
+            },
+          },
+        },
+        CategoryUpdateRequest: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              example: 'Motivational',
+            },
+            slug: {
+              type: 'string',
+              example: 'motivational',
+            },
+            description: {
+              type: 'string',
+              example: 'Shayari to inspire and motivate',
+            },
+          },
+        },
+        CategoryResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+            },
+            data: {
+              $ref: '#/components/schemas/Category',
+            },
+          },
+        },
+        CategoriesListResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+            },
+            data: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Category',
+              },
+            },
+          },
+        },
         User: {
           type: 'object',
           properties: {

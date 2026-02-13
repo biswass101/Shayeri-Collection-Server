@@ -47,7 +47,7 @@ export class AuthService {
       data: {
         email,
         name,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         role: "user",
       },
     });
@@ -70,7 +70,7 @@ export class AuthService {
     }
 
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
       throw new Error("Invalid email or password");

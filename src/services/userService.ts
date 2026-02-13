@@ -1,8 +1,10 @@
 import { User } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 import { UserRepository } from "../repositories/userRepository";
 
 export class UserService {
   private userRepository: UserRepository;
+  private readonly SALT_ROUNDS = 10;
 
   constructor(userRepository: UserRepository) {
     this.userRepository = userRepository;
@@ -21,7 +23,8 @@ export class UserService {
       throw new Error("User with this email already exists");
     }
 
-    return await this.userRepository.create(email, name, password);
+    const passwordHash = await bcrypt.hash(password, this.SALT_ROUNDS);
+    return await this.userRepository.create(email, name, passwordHash);
   }
 
   // Get user by ID
