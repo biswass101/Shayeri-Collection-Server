@@ -5,10 +5,12 @@ services:
     rootDir: ./
     plan: free
     autoDeploy: true
-    buildCommand: npm install && npm run prisma:generate && npm run build
+    buildCommand: npm install --include=dev && npm run prisma:generate && npm run build
     startCommand: npm run start:render
     healthCheckPath: /health
     envVars:
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
       - key: NODE_ENV
         value: production
       - key: PORT
