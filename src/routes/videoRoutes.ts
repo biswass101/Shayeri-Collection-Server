@@ -92,6 +92,48 @@ export function videoRoutes(
 
   /**
    * @swagger
+   * /api/videos/{id}/views:
+   *   post:
+   *     summary: Increment video views
+   *     description: Increase view count by 1 when playback starts (Public)
+   *     tags:
+   *       - Videos
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       200:
+   *         description: View count updated
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     id:
+   *                       type: integer
+   *                     viewsCount:
+   *                       type: integer
+   *       404:
+   *         description: Video not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   */
+  app.post("/api/videos/:id/views", (req: Request, res: Response) =>
+    videoController.incrementViews(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/videos:
    *   post:
    *     summary: Create a new video

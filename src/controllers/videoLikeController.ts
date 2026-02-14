@@ -45,4 +45,23 @@ export class VideoLikeController {
       res.status(status).json({ error: message });
     }
   }
+
+  async getLikeStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const liked = await this.service.isLiked(Number(id), userId);
+      res.json({ success: true, data: { liked } });
+    } catch (error: any) {
+      const message = error.message || "Server error";
+      const status = message === "Video not found" ? 404 : 400;
+      res.status(status).json({ error: message });
+    }
+  }
 }

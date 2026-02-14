@@ -85,4 +85,47 @@ export function videoLikeRoutes(
     authenticate,
     (req: Request, res: Response) => controller.unlikeVideo(req, res)
   );
+
+  /**
+   * @swagger
+   * /api/videos/{id}/likes/me:
+   *   get:
+   *     summary: Get like status for current user
+   *     description: Check if the authenticated user liked the video
+   *     tags:
+   *       - Likes
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *         description: Video ID
+   *     responses:
+   *       200:
+   *         description: Like status
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     liked:
+   *                       type: boolean
+   *       401:
+   *         description: Unauthorized
+   *       404:
+   *         description: Video not found
+   */
+  app.get(
+    "/api/videos/:id/likes/me",
+    authenticate,
+    (req: Request, res: Response) => controller.getLikeStatus(req, res)
+  );
 }

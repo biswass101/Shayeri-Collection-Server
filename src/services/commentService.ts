@@ -14,13 +14,25 @@ export class CommentService {
     return await this.repository.findByVideo(videoId);
   }
 
-  async createComment(videoId: number, userId: number, body: string): Promise<Comment> {
+  async createComment(
+    videoId: number,
+    userId: number,
+    body: string,
+    parentId?: number | null
+  ): Promise<Comment> {
     const video = await this.prisma.video.findUnique({
       where: { id: videoId },
       select: { id: true },
     });
     if (!video) {
       throw new Error("Video not found");
+    }
+
+    if (parentId) {
+      const parent = await this.repository.findById(parentId);
+      if (!parent || parent.isDeleted) {
+        throw new Error("Parent comment not found");
+      }
     }
 
     const trimmed = body.trim();
@@ -32,6 +44,7 @@ export class CommentService {
       videoId,
       userId,
       body: trimmed,
+      parentId: parentId ?? null,
     });
   }
 

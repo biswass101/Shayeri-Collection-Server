@@ -15,10 +15,15 @@ export class CommentRepository {
 
   async findByVideo(videoId: number): Promise<Comment[]> {
     return await this.prisma.comment.findMany({
-      where: { videoId, isDeleted: false },
+      where: { videoId, isDeleted: false, parentId: null },
       orderBy: { createdAt: "desc" },
       include: {
         user: true,
+        replies: {
+          where: { isDeleted: false },
+          orderBy: { createdAt: "asc" },
+          include: { user: true },
+        },
       },
     });
   }
@@ -27,15 +32,22 @@ export class CommentRepository {
     videoId: number;
     userId: number;
     body: string;
+    parentId?: number | null;
   }): Promise<Comment> {
     return await this.prisma.comment.create({
       data: {
         videoId: data.videoId,
         userId: data.userId,
         body: data.body,
+        parentId: data.parentId ?? null,
       },
       include: {
         user: true,
+        replies: {
+          where: { isDeleted: false },
+          orderBy: { createdAt: "asc" },
+          include: { user: true },
+        },
       },
     });
   }

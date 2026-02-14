@@ -28,4 +28,9 @@ export class VideoLikeRepository {
       },
     });
   }
+
+  async isLiked(userId: number, videoId: number): Promise<boolean> {
+    const like = await this.findByUserAndVideo(userId, videoId);
+    return Boolean(like);
+  }
 }

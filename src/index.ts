@@ -48,7 +48,7 @@ dotenv.config();
 
 const app: Express = express();
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 // Initialize repository, service, and controller
 const userRepository = new UserRepository(prisma);

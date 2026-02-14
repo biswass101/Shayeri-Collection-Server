@@ -35,4 +35,16 @@ export class VideoLikeService {
 
     return await this.repository.delete(userId, videoId);
   }
+
+  async isLiked(videoId: number, userId: number): Promise<boolean> {
+    const video = await this.prisma.video.findUnique({
+      where: { id: videoId },
+      select: { id: true },
+    });
+    if (!video) {
+      throw new Error("Video not found");
+    }
+
+    return await this.repository.isLiked(userId, videoId);
+  }
 }

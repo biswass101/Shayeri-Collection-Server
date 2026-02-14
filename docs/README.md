@@ -14,7 +14,7 @@ This folder contains all documentation for the Sayeri Collection Server.
 
 ## Quick Links
 
-- **API Documentation**: `http://localhost:3000/api-docs` (when server is running)
+- **API Documentation**: `http://localhost:4000/api-docs` (when server is running)
 - **Create Admin**: `npm run create:admin`
 - **Start Server**: `npm run dev`
 - **Project Docs Entry**: [PROJECT_VISION.md](./PROJECT_VISION.md)

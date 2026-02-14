@@ -19,6 +19,7 @@ export class VideoRepository {
       orderBy: { createdAt: "desc" },
       include: {
         category: true,
+        _count: { select: { likes: true } },
       },
     });
   }
@@ -33,6 +34,7 @@ export class VideoRepository {
       include: {
         category: true,
         textSections: { orderBy: { position: "asc" } },
+        _count: { select: { likes: true } },
       },
     });
   }
@@ -43,6 +45,7 @@ export class VideoRepository {
       include: {
         category: true,
         textSections: { orderBy: { position: "asc" } },
+        _count: { select: { likes: true } },
       },
     });
   }
@@ -54,6 +57,7 @@ export class VideoRepository {
       include: {
         category: true,
         textSections: { orderBy: { position: "asc" } },
+        _count: { select: { likes: true } },
       },
     });
   }
@@ -61,6 +65,13 @@ export class VideoRepository {
   async delete(id: number): Promise<Video> {
     return await this.prisma.video.delete({
       where: { id },
+    });
+  }
+
+  async incrementViews(id: number): Promise<Video> {
+    return await this.prisma.video.update({
+      where: { id },
+      data: { viewsCount: { increment: 1 } },
     });
   }
 }

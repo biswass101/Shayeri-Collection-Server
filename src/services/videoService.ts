@@ -82,6 +82,9 @@ export class VideoService {
     const thumbnailResult = params.thumbnailFile
       ? await this.uploadThumbnail(params.thumbnailFile)
       : null;
+    const fallbackThumbnailUrl = thumbnailResult?.secure_url
+      ? null
+      : this.buildDefaultThumbnailUrl(uploadResult.public_id);
 
     const sections = this.normalizeSections(params.textSections);
 
@@ -93,7 +96,7 @@ export class VideoService {
           category: { connect: { id: params.categoryId } },
           cloudinaryPublicId: uploadResult.public_id,
           videoUrl: uploadResult.secure_url,
-          thumbnailUrl: thumbnailResult?.secure_url ?? null,
+          thumbnailUrl: thumbnailResult?.secure_url ?? fallbackThumbnailUrl,
           durationSeconds: uploadResult.duration
             ? Math.round(uploadResult.duration)
             : null,
@@ -192,6 +195,14 @@ export class VideoService {
     return deleted;
   }
 
+  async incrementViews(id: number): Promise<Video> {
+    const existing = await this.videoRepository.findById(id);
+    if (!existing) {
+      throw new Error("Video not found");
+    }
+    return await this.videoRepository.incrementViews(id);
+  }
+
   private normalizeSections(
     sections?: VideoTextSectionInput[]
   ): { position: number; heading?: string | null; body: string }[] | null {
@@ -259,6 +270,18 @@ export class VideoService {
       );
 
       uploadStream.end(fileBuffer);
+    });
+  }
+
+  private buildDefaultThumbnailUrl(publicId: string): string | null {
+    if (!publicId) return null;
+    return cloudinary.url(publicId, {
+      resource_type: "video",
+      format: "jpg",
+      transformation: [
+        { so: 2 },
+        { width: 640, height: 360, crop: "fill" },
+      ],
     });
   }
 

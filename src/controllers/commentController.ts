@@ -21,7 +21,7 @@ export class CommentController {
   async createComment(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { body } = req.body;
+      const { body, parentId } = req.body;
       const userId = req.user?.id;
 
       if (!userId) {
@@ -34,11 +34,19 @@ export class CommentController {
         return;
       }
 
-      const comment = await this.service.createComment(Number(id), userId, body);
+      const comment = await this.service.createComment(
+        Number(id),
+        userId,
+        body,
+        parentId ? Number(parentId) : null
+      );
       res.status(201).json({ success: true, data: comment });
     } catch (error: any) {
       const message = error.message || "Server error";
-      const status = message === "Video not found" ? 404 : 400;
+      const status =
+        message === "Video not found" || message === "Parent comment not found"
+          ? 404
+          : 400;
       res.status(status).json({ error: message });
     }
   }

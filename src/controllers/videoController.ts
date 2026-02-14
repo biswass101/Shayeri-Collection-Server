@@ -8,6 +8,20 @@ export class VideoController {
     this.videoService = videoService;
   }
 
+  private buildHlsUrl(publicId?: string | null): string | null {
+    if (!publicId) return null;
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) return null;
+    return `https://res.cloudinary.com/${cloudName}/video/upload/sp_auto/${publicId}.m3u8`;
+  }
+
+  private buildThumbnailUrl(publicId?: string | null): string | null {
+    if (!publicId) return null;
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) return null;
+    return `https://res.cloudinary.com/${cloudName}/video/upload/so_2,w_640,h_360,c_fill/${publicId}.jpg`;
+  }
+
   async listVideos(req: Request, res: Response): Promise<void> {
     try {
       const page = Math.max(1, Number(req.query.page) || 1);
@@ -25,7 +39,15 @@ export class VideoController {
         includeUnpublished: false,
       });
 
-      res.json({ success: true, data: result.items, meta: { total: result.total, page, limit } });
+      const data = result.items.map((video) => ({
+        ...video,
+        hlsUrl: this.buildHlsUrl(video.cloudinaryPublicId),
+        thumbnailUrl:
+          video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
+        likesCount: (video as any)?._count?.likes ?? 0,
+      }));
+
+      res.json({ success: true, data, meta: { total: result.total, page, limit } });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -41,7 +63,16 @@ export class VideoController {
         return;
       }
 
-      res.json({ success: true, data: video });
+      res.json({
+        success: true,
+        data: {
+          ...video,
+          hlsUrl: this.buildHlsUrl(video.cloudinaryPublicId),
+          thumbnailUrl:
+            video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
+          likesCount: (video as any)?._count?.likes ?? 0,
+        },
+      });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -53,7 +84,7 @@ export class VideoController {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
       const videoFile = files?.video?.[0];
       const thumbnailFile = files?.thumbnail?.[0];
-
+      console.log("tile", title, "categoryId", categoryId, "videoFile", videoFile);
       if (!title || !categoryId || !videoFile) {
         res.status(400).json({ error: "title, categoryId, and video file are required" });
         return;
@@ -78,7 +109,16 @@ export class VideoController {
         textSections: parsedSections,
       });
 
-      res.status(201).json({ success: true, data: video });
+      res.status(201).json({
+        success: true,
+        data: {
+          ...video,
+          hlsUrl: this.buildHlsUrl(video.cloudinaryPublicId),
+          thumbnailUrl:
+            video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
+          likesCount: (video as any)?._count?.likes ?? 0,
+        },
+      });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
@@ -118,7 +158,16 @@ export class VideoController {
         textSections: parsedSections,
       });
 
-      res.json({ success: true, data: video });
+      res.json({
+        success: true,
+        data: {
+          ...video,
+          hlsUrl: this.buildHlsUrl(video.cloudinaryPublicId),
+          thumbnailUrl:
+            video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
+          likesCount: (video as any)?._count?.likes ?? 0,
+        },
+      });
     } catch (error: any) {
       const message = error.message || "Server error";
       const status = message === "Video not found" ? 404 : 400;
@@ -132,6 +181,25 @@ export class VideoController {
       const video = await this.videoService.deleteVideo(Number(id));
 
       res.json({ success: true, message: "Video deleted successfully", data: video });
+    } catch (error: any) {
+      const message = error.message || "Server error";
+      const status = message === "Video not found" ? 404 : 400;
+      res.status(status).json({ error: message });
+    }
+  }
+
+  async incrementViews(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const video = await this.videoService.incrementViews(Number(id));
+
+      res.json({
+        success: true,
+        data: {
+          id: video.id,
+          viewsCount: video.viewsCount,
+        },
+      });
     } catch (error: any) {
       const message = error.message || "Server error";
       const status = message === "Video not found" ? 404 : 400;

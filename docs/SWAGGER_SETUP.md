@@ -57,12 +57,12 @@
 
 2. **Open Swagger UI in browser:**
    ```
-   http://localhost:3000/api-docs
+   http://localhost:4000/api-docs
    ```
 
 3. **Get OpenAPI JSON specification:**
    ```
-   http://localhost:3000/api-docs/swagger.json
+   http://localhost:4000/api-docs/swagger.json
    ```
 
 ## Features
@@ -81,7 +81,7 @@
 
 ## Testing in Swagger UI
 
-1. Navigate to `http://localhost:3000/api-docs`
+1. Navigate to `http://localhost:4000/api-docs`
 2. Use the "Try it out" button on any endpoint
 3. For protected endpoints, click the lock icon to add JWT token
 4. Execute requests and see real responses
