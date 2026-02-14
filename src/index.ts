@@ -31,6 +31,8 @@ import { VideoDownloadController } from "./controllers/videoDownloadController";
 import { NotificationRepository } from "./repositories/notificationRepository";
 import { NotificationService } from "./services/notificationService";
 import { NotificationController } from "./controllers/notificationController";
+import { AdminDashboardService } from "./services/adminDashboardService";
+import { AdminDashboardController } from "./controllers/adminDashboardController";
 import { AuthService } from "./services/authService";
 import { AuthController } from "./controllers/authController";
 import { userRoutes } from "./routes/userRoutes";
@@ -43,6 +45,7 @@ import { commentRoutes } from "./routes/commentRoutes";
 import { videoShareRoutes } from "./routes/videoShareRoutes";
 import { videoDownloadRoutes } from "./routes/videoDownloadRoutes";
 import { notificationRoutes } from "./routes/notificationRoutes";
+import { adminDashboardRoutes } from "./routes/adminDashboardRoutes";
 
 dotenv.config();
 
@@ -78,6 +81,8 @@ const videoDownloadController = new VideoDownloadController(videoDownloadService
 const notificationRepository = new NotificationRepository(prisma);
 const notificationService = new NotificationService(notificationRepository);
 const notificationController = new NotificationController(notificationService);
+const adminDashboardService = new AdminDashboardService(prisma);
+const adminDashboardController = new AdminDashboardController(adminDashboardService);
 const authService = new AuthService(prisma);
 const authController = new AuthController(authService);
 
@@ -133,6 +138,9 @@ videoDownloadRoutes(app, videoDownloadController, authService);
 
 // Notifications (auth)
 notificationRoutes(app, notificationController, authService);
+
+// Admin dashboard (admin only)
+adminDashboardRoutes(app, adminDashboardController, authService);
 
 // Start server
 app.listen(PORT, () => {

@@ -39,12 +39,17 @@ export class VideoController {
         includeUnpublished: false,
       });
 
+      const ids = result.items.map((video) => video.id);
+      const counts = await this.videoService.getShareDownloadCounts(ids);
+
       const data = result.items.map((video) => ({
         ...video,
         hlsUrl: this.buildHlsUrl(video.cloudinaryPublicId),
         thumbnailUrl:
           video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
         likesCount: (video as any)?._count?.likes ?? 0,
+        sharesCount: counts.shares[video.id] ?? (video as any)?._count?.shares ?? 0,
+        downloadsCount: counts.downloads[video.id] ?? (video as any)?._count?.downloads ?? 0,
       }));
 
       res.json({ success: true, data, meta: { total: result.total, page, limit } });
@@ -63,6 +68,8 @@ export class VideoController {
         return;
       }
 
+      const counts = await this.videoService.getShareDownloadCounts([video.id]);
+
       res.json({
         success: true,
         data: {
@@ -71,6 +78,8 @@ export class VideoController {
           thumbnailUrl:
             video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
           likesCount: (video as any)?._count?.likes ?? 0,
+          sharesCount: counts.shares[video.id] ?? (video as any)?._count?.shares ?? 0,
+          downloadsCount: counts.downloads[video.id] ?? (video as any)?._count?.downloads ?? 0,
         },
       });
     } catch (error: any) {
@@ -109,6 +118,8 @@ export class VideoController {
         textSections: parsedSections,
       });
 
+      const counts = await this.videoService.getShareDownloadCounts([video.id]);
+
       res.status(201).json({
         success: true,
         data: {
@@ -117,6 +128,8 @@ export class VideoController {
           thumbnailUrl:
             video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
           likesCount: (video as any)?._count?.likes ?? 0,
+          sharesCount: counts.shares[video.id] ?? (video as any)?._count?.shares ?? 0,
+          downloadsCount: counts.downloads[video.id] ?? (video as any)?._count?.downloads ?? 0,
         },
       });
     } catch (error: any) {
@@ -158,6 +171,8 @@ export class VideoController {
         textSections: parsedSections,
       });
 
+      const counts = await this.videoService.getShareDownloadCounts([video.id]);
+
       res.json({
         success: true,
         data: {
@@ -166,6 +181,8 @@ export class VideoController {
           thumbnailUrl:
             video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
           likesCount: (video as any)?._count?.likes ?? 0,
+          sharesCount: counts.shares[video.id] ?? (video as any)?._count?.shares ?? 0,
+          downloadsCount: counts.downloads[video.id] ?? (video as any)?._count?.downloads ?? 0,
         },
       });
     } catch (error: any) {

@@ -89,7 +89,7 @@ export class VideoService {
     const sections = this.normalizeSections(params.textSections);
 
     return await this.prisma.$transaction(async (tx) => {
-      return await tx.video.create({
+      const video = await tx.video.create({
         data: {
           title: params.title,
           description: params.description ?? null,
@@ -114,6 +114,12 @@ export class VideoService {
           textSections: { orderBy: { position: "asc" } },
         },
       });
+      await this.createVideoNotifications(tx, {
+        type: "video_created",
+        videoId: video.id,
+        title: video.title,
+      });
+      return video;
     });
   }
 
@@ -156,7 +162,7 @@ export class VideoService {
         });
       }
 
-      return await tx.video.update({
+      const video = await tx.video.update({
         where: { id: existing.id },
         data: {
           title: params.title ?? undefined,
@@ -181,6 +187,12 @@ export class VideoService {
           textSections: { orderBy: { position: "asc" } },
         },
       });
+      await this.createVideoNotifications(tx, {
+        type: "video_updated",
+        videoId: video.id,
+        title: video.title,
+      });
+      return video;
     });
   }
 
@@ -201,6 +213,39 @@ export class VideoService {
       throw new Error("Video not found");
     }
     return await this.videoRepository.incrementViews(id);
+  }
+
+  async getShareDownloadCounts(
+    videoIds: number[]
+  ): Promise<{ shares: Record<number, number>; downloads: Record<number, number> }> {
+    if (!videoIds.length) {
+      return { shares: {}, downloads: {} };
+    }
+
+    const [shareRows, downloadRows] = await Promise.all([
+      this.prisma.videoShareEvent.groupBy({
+        by: ["videoId"],
+        where: { videoId: { in: videoIds } },
+        _count: { _all: true },
+      }),
+      this.prisma.videoDownloadEvent.groupBy({
+        by: ["videoId"],
+        where: { videoId: { in: videoIds } },
+        _count: { _all: true },
+      }),
+    ]);
+
+    const shares = shareRows.reduce<Record<number, number>>((acc, row) => {
+      acc[row.videoId] = row._count._all;
+      return acc;
+    }, {});
+
+    const downloads = downloadRows.reduce<Record<number, number>>((acc, row) => {
+      acc[row.videoId] = row._count._all;
+      return acc;
+    }, {});
+
+    return { shares, downloads };
   }
 
   private normalizeSections(
@@ -291,5 +336,33 @@ export class VideoService {
     } catch (error) {
       // Ignore cloud delete failures to avoid blocking DB cleanup
     }
+  }
+
+  private async createVideoNotifications(
+    tx: Prisma.TransactionClient,
+    params: { type: "video_created" | "video_updated"; videoId: number; title: string }
+  ): Promise<void> {
+    const users = await tx.user.findMany({
+      select: { id: true },
+    });
+
+    if (!users.length) return;
+
+    const title =
+      params.type === "video_created" ? "New video uploaded" : "Video updated";
+    const body =
+      params.type === "video_created"
+        ? `New video: ${params.title}`
+        : `${params.title} was updated.`;
+
+    await tx.notification.createMany({
+      data: users.map((user) => ({
+        userId: user.id,
+        videoId: params.videoId,
+        type: params.type,
+        title,
+        body,
+      })),
+    });
   }
 }

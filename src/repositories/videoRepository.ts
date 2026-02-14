@@ -19,7 +19,7 @@ export class VideoRepository {
       orderBy: { createdAt: "desc" },
       include: {
         category: true,
-        _count: { select: { likes: true } },
+        _count: { select: { likes: true, shares: true, downloads: true } },
       },
     });
   }
@@ -34,7 +34,7 @@ export class VideoRepository {
       include: {
         category: true,
         textSections: { orderBy: { position: "asc" } },
-        _count: { select: { likes: true } },
+        _count: { select: { likes: true, shares: true, downloads: true } },
       },
     });
   }
@@ -45,7 +45,7 @@ export class VideoRepository {
       include: {
         category: true,
         textSections: { orderBy: { position: "asc" } },
-        _count: { select: { likes: true } },
+        _count: { select: { likes: true, shares: true, downloads: true } },
       },
     });
   }
@@ -57,7 +57,7 @@ export class VideoRepository {
       include: {
         category: true,
         textSections: { orderBy: { position: "asc" } },
-        _count: { select: { likes: true } },
+        _count: { select: { likes: true, shares: true, downloads: true } },
       },
     });
   }

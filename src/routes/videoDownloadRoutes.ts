@@ -12,6 +12,47 @@ export function videoDownloadRoutes(
 
   /**
    * @swagger
+   * /api/downloads/total:
+   *   get:
+   *     summary: Get total downloads
+   *     description: Retrieve total download count (optionally by videoId)
+   *     tags:
+   *       - Download
+   *     parameters:
+   *       - in: query
+   *         name: videoId
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       200:
+   *         description: Total download count
+   */
+  app.get("/api/downloads/total", (req: Request, res: Response) =>
+    controller.getTotalDownloads(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/downloads:
+   *   get:
+   *     summary: Get user downloads
+   *     description: Retrieve the current user's downloaded videos (Authenticated users)
+   *     tags:
+   *       - Download
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: List of downloads
+   *       401:
+   *         description: Unauthorized
+   */
+  app.get("/api/downloads", authenticate, (req: Request, res: Response) =>
+    controller.listUserDownloads(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/videos/{id}/download:
    *   get:
    *     summary: Download a video

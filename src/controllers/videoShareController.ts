@@ -32,4 +32,14 @@ export class VideoShareController {
       res.status(status).json({ error: message });
     }
   }
+
+  async getTotalShares(req: Request, res: Response): Promise<void> {
+    try {
+      const videoId = req.query.videoId ? Number(req.query.videoId) : undefined;
+      const total = await this.service.countShares(videoId);
+      res.json({ success: true, data: { total, videoId: videoId ?? null } });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Server error" });
+    }
+  }
 }

@@ -12,6 +12,27 @@ export function videoShareRoutes(
 
   /**
    * @swagger
+   * /api/shares/total:
+   *   get:
+   *     summary: Get total shares
+   *     description: Retrieve total share count (optionally by videoId)
+   *     tags:
+   *       - Share
+   *     parameters:
+   *       - in: query
+   *         name: videoId
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       200:
+   *         description: Total share count
+   */
+  app.get("/api/shares/total", (req: Request, res: Response) =>
+    controller.getTotalShares(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/videos/{id}/share:
    *   post:
    *     summary: Share a video

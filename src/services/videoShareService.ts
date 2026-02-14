@@ -31,4 +31,10 @@ export class VideoShareService {
       channel: channel || null,
     });
   }
+
+  async countShares(videoId?: number): Promise<number> {
+    return await this.prisma.videoShareEvent.count({
+      where: videoId ? { videoId } : undefined,
+    });
+  }
 }

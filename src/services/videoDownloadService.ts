@@ -29,4 +29,45 @@ export class VideoDownloadService {
 
     return { event, videoUrl: video.videoUrl };
   }
+
+  async countDownloads(videoId?: number): Promise<number> {
+    return await this.prisma.videoDownloadEvent.count({
+      where: videoId ? { videoId } : undefined,
+    });
+  }
+
+  async listUserDownloads(userId: number): Promise<
+    Array<{
+      id: number;
+      downloadedAt: Date;
+      video: {
+        id: number;
+        title: string;
+        description: string | null;
+        thumbnailUrl: string | null;
+      };
+    }>
+  > {
+    const rows = await this.prisma.videoDownloadEvent.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      distinct: ["videoId"],
+      include: {
+        video: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            thumbnailUrl: true,
+          },
+        },
+      },
+    });
+
+    return rows.map((row) => ({
+      id: row.id,
+      downloadedAt: row.createdAt,
+      video: row.video,
+    }));
+  }
 }
