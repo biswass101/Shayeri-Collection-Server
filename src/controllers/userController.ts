@@ -57,8 +57,21 @@ export class UserController {
     try {
       const { id } = req.params;
       const { email, name } = req.body;
+      const avatarFile = (req as Request & { file?: Express.Multer.File }).file;
+      const userId = req.user?.id;
+      const userRole = req.user?.role;
 
-      if (!email && !name) {
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      if (userRole !== "admin" && userId !== Number(id)) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+
+      if (!email && !name && !avatarFile) {
         res.status(400).json({ error: "At least one field is required" });
         return;
       }
@@ -66,6 +79,7 @@ export class UserController {
       const user = await this.userService.updateUser(Number(id), {
         email,
         name,
+        avatarFile: avatarFile?.buffer ?? null,
       });
 
       res.json({ success: true, data: user });

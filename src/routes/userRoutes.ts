@@ -1,4 +1,5 @@
 import { Express, Request, Response } from "express";
+import multer from "multer";
 import { UserController } from "../controllers/userController";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { roleMiddleware } from "../middlewares/roleMiddleware";
@@ -11,6 +12,10 @@ export function userRoutes(
 ) {
   // Apply auth middleware to all user routes
   const authenticate = authMiddleware(authService);
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+  });
 
   /**
    * @swagger
@@ -179,7 +184,7 @@ export function userRoutes(
    *     requestBody:
    *       required: true
    *       content:
-   *         application/json:
+   *         multipart/form-data:
    *           schema:
    *             type: object
    *             properties:
@@ -189,6 +194,9 @@ export function userRoutes(
    *               name:
    *                 type: string
    *                 example: Jane Doe
+   *               avatar:
+   *                 type: string
+   *                 format: binary
    *     responses:
    *       200:
    *         description: User updated successfully
@@ -215,7 +223,7 @@ export function userRoutes(
    *             schema:
    *               $ref: '#/components/schemas/ErrorResponse'
    */
-  app.put("/api/users/:id", authenticate, (req: Request, res: Response) =>
+  app.put("/api/users/:id", authenticate, upload.single("avatar"), (req: Request, res: Response) =>
     userController.updateUser(req, res)
   );
 

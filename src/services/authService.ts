@@ -1,6 +1,7 @@
 import { PrismaClient, User } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import { cloudinary } from "../config/cloudinary";
 
 export class AuthService {
   private prisma: PrismaClient;
@@ -16,7 +17,8 @@ export class AuthService {
   async register(
     email: string,
     name: string,
-    password: string
+    password: string,
+    avatarFile?: Buffer
   ): Promise<{ user: User; token: string }> {
     // Validate email format
     if (!this.isValidEmail(email)) {
@@ -42,6 +44,12 @@ export class AuthService {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
+    // Upload avatar if provided
+    let avatarUrl: string | null = null;
+    if (avatarFile) {
+      avatarUrl = await this.uploadAvatar(avatarFile);
+    }
+
     // Create user
     const user = await this.prisma.user.create({
       data: {
@@ -49,6 +57,7 @@ export class AuthService {
         name,
         passwordHash: hashedPassword,
         role: "user",
+        avatarUrl: avatarUrl ?? undefined,
       },
     });
 
@@ -115,5 +124,26 @@ export class AuthService {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
+  }
+
+  private uploadAvatar(fileBuffer: Buffer): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "image",
+          folder: "sayeri/avatars",
+          transformation: [{ width: 256, height: 256, crop: "fill", gravity: "face" }],
+        },
+        (error, result) => {
+          if (error || !result) {
+            reject(error || new Error("Failed to upload avatar"));
+            return;
+          }
+          resolve(result.secure_url);
+        }
+      );
+
+      uploadStream.end(fileBuffer);
+    });
   }
 }

@@ -60,6 +60,39 @@ export function videoRoutes(
 
   /**
    * @swagger
+   * /api/videos/liked:
+   *   get:
+   *     summary: Get liked videos
+   *     description: Retrieve list of videos liked by the authenticated user
+   *     tags:
+   *       - Videos
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       200:
+   *         description: Liked videos retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/VideosListResponse'
+   *       401:
+   *         description: Unauthorized
+   */
+  app.get("/api/videos/liked", authenticate, (req: Request, res: Response) =>
+    videoController.listLikedVideos(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/videos/{id}:
    *   get:
    *     summary: Get video by ID

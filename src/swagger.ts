@@ -384,6 +384,10 @@ const options = {
               type: 'string',
               description: 'User full name',
             },
+            avatarUrl: {
+              type: 'string',
+              description: 'Profile image URL',
+            },
             role: {
               type: 'string',
               enum: ['user', 'admin'],
@@ -419,6 +423,11 @@ const options = {
               type: 'string',
               example: 'password123',
               description: 'User password',
+            },
+            avatar: {
+              type: 'string',
+              format: 'binary',
+              description: 'Profile image file (optional)',
             },
           },
         },

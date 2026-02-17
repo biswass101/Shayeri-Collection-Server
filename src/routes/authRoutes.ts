@@ -1,7 +1,12 @@
 import { Express, Request, Response } from "express";
+import multer from "multer";
 import { AuthController } from "../controllers/authController";
 
 export function authRoutes(app: Express, authController: AuthController) {
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+  });
   /**
    * @swagger
    * /api/auth/register:
@@ -13,7 +18,7 @@ export function authRoutes(app: Express, authController: AuthController) {
    *     requestBody:
    *       required: true
    *       content:
-   *         application/json:
+   *         multipart/form-data:
    *           schema:
    *             $ref: '#/components/schemas/RegisterRequest'
    *     responses:
@@ -30,7 +35,7 @@ export function authRoutes(app: Express, authController: AuthController) {
    *             schema:
    *               $ref: '#/components/schemas/ErrorResponse'
    */
-  app.post("/api/auth/register", (req: Request, res: Response) =>
+  app.post("/api/auth/register", upload.single("avatar"), (req: Request, res: Response) =>
     authController.register(req, res)
   );
 

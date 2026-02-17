@@ -40,7 +40,7 @@ export class UserRepository {
   // Update user
   async update(
     id: number,
-    data: { email?: string; name?: string }
+    data: { email?: string; name?: string; avatarUrl?: string | null }
   ): Promise<User> {
     return await this.prisma.user.update({
       where: { id },

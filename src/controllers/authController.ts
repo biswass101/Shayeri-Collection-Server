@@ -12,6 +12,7 @@ export class AuthController {
   async register(req: Request, res: Response): Promise<void> {
     try {
       const { email, name, password } = req.body;
+      const avatarFile = (req as Request & { file?: Express.Multer.File }).file;
 
       if (!email || !name || !password) {
         res
@@ -23,7 +24,8 @@ export class AuthController {
       const { user, token } = await this.authService.register(
         email,
         name,
-        password
+        password,
+        avatarFile?.buffer
       );
 
       res.status(201).json({
@@ -34,6 +36,7 @@ export class AuthController {
             id: user.id,
             email: user.email,
             name: user.name,
+            avatarUrl: user.avatarUrl ?? null,
             role: user.role,
           },
           token,
@@ -64,6 +67,7 @@ export class AuthController {
             id: user.id,
             email: user.email,
             name: user.name,
+            avatarUrl: user.avatarUrl ?? null,
             role: user.role,
           },
           token,

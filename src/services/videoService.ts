@@ -57,6 +57,27 @@ export class VideoService {
     return { items, total, page: params.page, limit: params.limit };
   }
 
+  async listLikedVideos(params: {
+    userId: number;
+    page: number;
+    limit: number;
+  }): Promise<{ items: Video[]; total: number; page: number; limit: number }> {
+    const where: Prisma.VideoWhereInput = {
+      isPublished: true,
+      likes: { some: { userId: params.userId } },
+    };
+
+    const skip = (params.page - 1) * params.limit;
+    const take = params.limit;
+
+    const [items, total] = await Promise.all([
+      this.videoRepository.findMany({ skip, take, where }),
+      this.videoRepository.count(where),
+    ]);
+
+    return { items, total, page: params.page, limit: params.limit };
+  }
+
   async getVideoById(id: number, includeUnpublished = false): Promise<Video | null> {
     const video = await this.videoRepository.findById(id);
     if (!video) return null;

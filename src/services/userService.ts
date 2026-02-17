@@ -1,6 +1,7 @@
 import { User } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import { UserRepository } from "../repositories/userRepository";
+import { cloudinary } from "../config/cloudinary";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -40,7 +41,7 @@ export class UserService {
   // Update user
   async updateUser(
     id: number,
-    data: { email?: string; name?: string }
+    data: { email?: string; name?: string; avatarFile?: Buffer | null }
   ): Promise<User> {
     // Validate email if provided
     if (data.email && !this.isValidEmail(data.email)) {
@@ -55,7 +56,16 @@ export class UserService {
       }
     }
 
-    return await this.userRepository.update(id, data);
+    let avatarUrl: string | null | undefined = undefined;
+    if (data.avatarFile) {
+      avatarUrl = await this.uploadAvatar(data.avatarFile);
+    }
+
+    return await this.userRepository.update(id, {
+      email: data.email,
+      name: data.name,
+      avatarUrl,
+    });
   }
 
   // Delete user
@@ -67,5 +77,26 @@ export class UserService {
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  }
+
+  private uploadAvatar(fileBuffer: Buffer): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "image",
+          folder: "sayeri/avatars",
+          transformation: [{ width: 256, height: 256, crop: "fill", gravity: "face" }],
+        },
+        (error, result) => {
+          if (error || !result) {
+            reject(error || new Error("Failed to upload avatar"));
+            return;
+          }
+          resolve(result.secure_url);
+        }
+      );
+
+      uploadStream.end(fileBuffer);
+    });
   }
 }

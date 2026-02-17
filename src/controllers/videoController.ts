@@ -58,6 +58,42 @@ export class VideoController {
     }
   }
 
+  async listLikedVideos(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const page = Math.max(1, Number(req.query.page) || 1);
+      const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 10));
+
+      const result = await this.videoService.listLikedVideos({
+        userId,
+        page,
+        limit,
+      });
+
+      const ids = result.items.map((video) => video.id);
+      const counts = await this.videoService.getShareDownloadCounts(ids);
+
+      const data = result.items.map((video) => ({
+        ...video,
+        hlsUrl: this.buildHlsUrl(video.cloudinaryPublicId),
+        thumbnailUrl:
+          video.thumbnailUrl ?? this.buildThumbnailUrl(video.cloudinaryPublicId),
+        likesCount: (video as any)?._count?.likes ?? 0,
+        sharesCount: counts.shares[video.id] ?? (video as any)?._count?.shares ?? 0,
+        downloadsCount: counts.downloads[video.id] ?? (video as any)?._count?.downloads ?? 0,
+      }));
+
+      res.json({ success: true, data, meta: { total: result.total, page, limit } });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   async getVideoById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
