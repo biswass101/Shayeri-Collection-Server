@@ -71,7 +71,12 @@ export class UserController {
         return;
       }
 
-      if (!email && !name && !avatarFile) {
+      if (email) {
+        res.status(400).json({ error: "Email cannot be updated" });
+        return;
+      }
+
+      if (!name && !avatarFile) {
         res.status(400).json({ error: "At least one field is required" });
         return;
       }
